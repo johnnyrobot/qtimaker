@@ -638,3 +638,20 @@ b)  false
 
 END_GROUP
 ```
+
+## License and Attribution
+
+This project is based on [text2qti](https://github.com/gpoore/text2qti) by Geoffrey M. Poore and Glenn Horton-Smith, licensed under the BSD 3-Clause License.
+
+### Original Copyright
+
+Copyright (c) 2020, Geoffrey M. Poore  
+Copyright (c) 2020, Glenn Horton-Smith
+
+### License
+
+This project is licensed under the BSD 3-Clause License. See [LICENSE.txt](LICENSE.txt) for the full license text.
+
+### Attribution
+
+QTI Maker is a fork and enhancement of the original text2qti project. The core QTI generation, quiz parsing, and Markdown processing functionality is based on the original work by Geoffrey M. Poore and Glenn Horton-Smith. All original copyright notices are preserved in the source code files.
