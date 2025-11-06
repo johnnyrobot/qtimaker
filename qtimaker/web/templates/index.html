@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>johnnyrobot - Quiz Maker</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .tab {
+            padding: 12px 24px;
+            background: #f0f0f0;
+            border: 2px solid transparent;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .tab:hover {
+            background: #e0e0e0;
+        }
+        .tab.active {
+            background: #007bff;
+            color: white;
+            border-color: #0056b3;
+        }
+        .content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .upload-area {
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .upload-area:hover {
+            border-color: #007bff;
+            background: #f0f8ff;
+        }
+        .upload-area p {
+            margin: 10px 0;
+        }
+        button {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>johnnyrobot - Canvas Quiz Maker</h1>
+        <p>Upload documents, extract questions, and generate QTI quizzes for Canvas</p>
+    </div>
+
+    <div class="tabs">
+        <button class="tab active" onclick="showTab(event, 'upload')">Upload Documents</button>
+        <button class="tab" onclick="showTab(event, 'questions')">Question Review</button>
+        <button class="tab" onclick="showTab(event, 'quiz')">Generate Quiz</button>
+    </div>
+
+    <div class="content">
+        <div id="upload-tab">
+            <h2>Upload Document</h2>
+            <p><strong>Supported formats via Docling:</strong></p>
+            <p style="color: #666; font-size: 14px;">
+                📄 Documents: PDF, Word (.docx, .doc), PowerPoint (.pptx, .ppt), Excel (.xlsx, .xls)<br>
+                🌐 Web: HTML, Markdown<br>
+                🖼️ Images: PNG, JPG, TIFF (with OCR)<br>
+                🎵 Audio: WAV, MP3 (with transcription)
+            </p>
+            
+            <div style="margin: 30px 0; padding: 20px; background: #f8f9fa; border: 2px dashed #ccc; border-radius: 8px;">
+                <label for="fileInput" style="display: block; font-weight: 600; margin-bottom: 10px; cursor: pointer; font-size: 16px;">
+                    📄 Select File to Upload:
+                </label>
+                <input 
+                    type="file" 
+                    id="fileInput" 
+                    name="file"
+                    accept=".pdf,.docx,.doc,.pptx,.ppt,.xlsx,.xls,.html,.htm,.md,.png,.jpg,.jpeg,.tiff,.tif,.bmp,.wav,.mp3,.m4a"
+                    style="
+                        display: block;
+                        width: 100%;
+                        max-width: 500px;
+                        padding: 10px;
+                        font-size: 16px;
+                        cursor: pointer;
+                        border: 2px solid #007bff;
+                        border-radius: 4px;
+                        background: white;
+                    "
+                    onchange="handleFileUpload(event)"
+                >
+                <p id="selected-file" style="margin-top: 10px; color: #28a745; font-weight: 500;"></p>
+            </div>
+            
+            <div id="upload-status" style="margin-top: 20px; min-height: 30px;"></div>
+        </div>
+
+        <div id="questions-tab" style="display: none;">
+            <h2>Question Review</h2>
+            <p>Generate questions from your uploaded document, then review and select them for your quiz.</p>
+            
+            <!-- Question Generation Section -->
+            <div id="generation-section" style="background: #e3f2fd; padding: 30px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
+                <h3 style="margin-top: 0;">Step 1: Generate Questions from Document</h3>
+                <p style="color: #666; margin-bottom: 20px;">AI will analyze your uploaded document and extract quiz questions.</p>
+                
+                <div style="display: inline-flex; gap: 20px; align-items: center; margin-bottom: 20px; flex-wrap: wrap; justify-content: center;">
+                    <div>
+                        <label style="font-weight: 600; margin-right: 10px; display: block; text-align: left; margin-bottom: 5px;">How many questions?</label>
+                        <input type="number" id="num-questions-to-generate" min="1" max="50" value="20" style="padding: 10px; border-radius: 4px; border: 1px solid #ccc; width: 100px; font-size: 16px;">
+                    </div>
+                    
+                    <div>
+                        <label style="font-weight: 600; margin-right: 10px; display: block; text-align: left; margin-bottom: 5px;">Question Type:</label>
+                        <select id="generation-type-filter" style="padding: 10px; border-radius: 4px; border: 1px solid #ccc; font-size: 16px; min-width: 200px;">
+                            <option value="mixed">Mixed (Multiple Choice + True/False)</option>
+                            <option value="multiple_choice">Multiple Choice Only</option>
+                            <option value="true_false">True/False Only</option>
+                            <option value="short_answer">Short Answer Only</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div>
+                    <button type="button" id="generate-questions-btn" onclick="generateQuestions()" style="padding: 15px 40px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 18px; font-weight: 600; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                        🤖 Generate Questions Using AI
+                    </button>
+                </div>
+                
+                <div id="generation-status" style="margin-top: 15px; min-height: 20px;"></div>
+            </div>
+            
+            <!-- Question Review Section (hidden until questions are generated) -->
+            <div id="review-section" style="display: none;">
+                <h3>Step 2: Review and Select Questions</h3>
+                <p style="color: #666; margin-bottom: 15px;">Check the generated questions and select which ones to include in your quiz.</p>
+                
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                    <div style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
+                        <div>
+                            <label style="font-weight: 600; margin-right: 10px;">Filter by Type:</label>
+                            <select id="question-type-filter" style="padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
+                                <option value="all">All Types</option>
+                                <option value="multiple_choice">Multiple Choice</option>
+                                <option value="true_false">True/False</option>
+                                <option value="short_answer">Short Answer</option>
+                                <option value="essay">Essay</option>
+                            </select>
+                        </div>
+                        
+                        <div style="margin-left: auto;">
+                            <span style="font-weight: 600; color: #007bff;">Selected: <span id="selected-count">0</span> / <span id="total-available">0</span> questions</span>
+                        </div>
+                        
+                        <div>
+                            <button type="button" onclick="selectAllQuestions()" style="padding: 8px 16px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">Select All</button>
+                            <button type="button" onclick="clearAllQuestions()" style="padding: 8px 16px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; margin-left: 10px;">Clear All</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="questions-list" style="margin-top: 20px;"></div>
+                
+                <div style="margin-top: 30px; text-align: center; padding: 20px; background: #f8f9fa; border-radius: 8px;">
+                    <h3>Step 3: Generate Quiz Package</h3>
+                    <button type="button" onclick="proceedToQuizGeneration()" style="padding: 15px 40px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 18px; font-weight: 600; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                        📦 Generate Quiz Package →
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="quiz-tab" style="display: none;">
+            <h2>Generate Quiz</h2>
+            <p>Configure your quiz settings and generate the QTI file.</p>
+            
+            <div style="background: #f8f9fa; padding: 30px; border-radius: 8px; max-width: 600px; margin: 20px auto;">
+                <form id="quiz-form">
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; font-weight: 600; margin-bottom: 8px;">Quiz Title:</label>
+                        <input type="text" name="title" required placeholder="e.g., Biology Chapter 1 Quiz" style="width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #ccc; font-size: 14px;">
+                    </div>
+                    
+                    <input type="hidden" name="qti_version" value="1.2">
+                    <div style="margin-bottom: 20px; padding: 15px; background: #e7f3ff; border-left: 4px solid #007bff; border-radius: 4px;">
+                        <p style="margin: 0; font-weight: 600; color: #007bff;">
+                            Export Format: QTI 1.2
+                        </p>
+                        <p style="margin: 5px 0 0 0; font-size: 13px; color: #666;">
+                            Compatible with all Canvas versions. Import via Settings → Import Course Content.
+                        </p>
+                    </div>
+                    
+                    <div style="margin-bottom: 20px; padding: 15px; background: #e7f3ff; border-left: 4px solid #007bff; border-radius: 4px;">
+                        <p style="margin: 0; font-weight: 600; color: #007bff;">
+                            <span id="quiz-question-count">0</span> questions selected
+                        </p>
+                    </div>
+                    
+                    <button type="submit" style="width: 100%; padding: 12px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: 600;">
+                        Generate Quiz Package
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showTab(event, tabName) {
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            // Hide all tab content
+            document.querySelectorAll('[id$="-tab"]').forEach(t => t.style.display = 'none');
+            // Add active class to clicked tab
+            if (event && event.target) {
+                event.target.classList.add('active');
+            } else {
+                // Fallback if event is not available
+                document.querySelectorAll('.tab').forEach(t => {
+                    if (t.textContent.includes(tabName === 'upload' ? 'Upload' : tabName === 'questions' ? 'Question' : 'Generate')) {
+                        t.classList.add('active');
+                    }
+                });
+            }
+            // Show selected tab content
+            document.getElementById(tabName + '-tab').style.display = 'block';
+        }
+
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add filter change listener
+            const typeFilter = document.getElementById('question-type-filter');
+            if (typeFilter) {
+                typeFilter.addEventListener('change', renderQuestions);
+            }
+
+        });
+
+        // Store questions globally
+        let allQuestions = [];
+        let selectedQuestions = [];
+
+        async function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const statusDiv = document.getElementById('upload-status');
+            const selectedFileDisplay = document.getElementById('selected-file');
+            
+            statusDiv.innerHTML = '<p style="color: #007bff;">⏳ Uploading and processing document...</p>';
+
+            try {
+                const response = await fetch('/api/upload/documents', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    statusDiv.innerHTML = `<p style="color: green;">✓ Upload successful! Document ID: ${result.document_id}</p><p style="color: #007bff;">Now go to the Question Review tab to generate questions.</p>`;
+                    
+                    // Store document ID for later use
+                    window.currentDocumentId = result.document_id;
+                    window.currentFileName = file.name;
+                    
+                    // Switch to questions tab after a moment
+                    setTimeout(() => {
+                        showTab(null, 'questions');
+                    }, 1500);
+                } else {
+                    statusDiv.innerHTML = `<p style="color: red;">Error: ${result.detail || result.error}</p>`;
+                }
+            } catch (error) {
+                statusDiv.innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+            }
+        }
+
+        async function generateQuestions() {
+            const numQuestions = parseInt(document.getElementById('num-questions-to-generate').value);
+            const questionType = document.getElementById('generation-type-filter').value;
+            const statusDiv = document.getElementById('generation-status');
+            const generateBtn = document.getElementById('generate-questions-btn');
+            
+            if (!window.currentDocumentId) {
+                alert('Please upload a document first.');
+                return;
+            }
+            
+            // Show loading state
+            generateBtn.disabled = true;
+            generateBtn.textContent = '⏳ Generating questions...';
+            statusDiv.innerHTML = '<p style="color: #007bff; font-weight: 600;">🤖 AI is analyzing your document and generating questions...</p>';
+            
+            try {
+                // Call backend API to generate questions using real document parsing + Gemini
+                const response = await fetch('/api/questions/generate', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        document_id: window.currentDocumentId,
+                        num_questions: numQuestions,
+                        question_types: questionType === 'mixed' ? ['multiple_choice', 'true_false'] : [questionType]
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(result.detail || 'Failed to generate questions');
+                }
+                
+                // Use the questions from the API
+                if (result.questions && result.questions.length > 0) {
+                    allQuestions = result.questions;
+                    selectedQuestions = [];
+                    
+                    statusDiv.innerHTML = `
+                        <p style="color: #28a745; font-weight: 600;">
+                            ✓ Successfully generated ${result.total_generated} questions from your document!
+                        </p>
+                        <p style="color: #666; font-size: 14px;">
+                            Parsing method: ${result.method || 'unknown'} | Document: ${window.currentFileName}
+                        </p>
+                    `;
+                    
+                    // Show review section
+                    document.getElementById('review-section').style.display = 'block';
+                    document.getElementById('total-available').textContent = result.total_generated;
+                    
+                    renderQuestions();
+                    
+                    // Scroll to questions
+                    setTimeout(() => {
+                        document.getElementById('review-section').scrollIntoView({ behavior: 'smooth' });
+                    }, 300);
+                } else {
+                    throw new Error('No questions were generated. The document may be empty or unsupported.');
+                }
+            } catch (error) {
+                statusDiv.innerHTML = `<p style="color: #dc3545; font-weight: 600;">✗ Error: ${error.message}</p>`;
+                console.error('Error generating questions:', error);
+            } finally {
+                generateBtn.disabled = false;
+                generateBtn.textContent = '🤖 Generate Questions from Document';
+            }
+            
+            return;  // Skip the old sample generation code below
+            
+            // OLD CODE (FALLBACK) - only runs if API call is skipped
+            await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API call
+            
+            allQuestions = [];
+            const baseQuestions = [
+                {
+                    type: 'multiple_choice',
+                    text: 'What is the basic unit of life?',
+                    choices: ['Atom', 'Cell', 'Molecule', 'Organ'],
+                    correct_answer: 1,
+                    explanation: 'The cell is the smallest unit of life that can function independently.'
+                },
+                {
+                    type: 'multiple_choice',
+                    text: 'Which organelle is responsible for energy production?',
+                    choices: ['Nucleus', 'Ribosome', 'Mitochondria', 'Golgi apparatus'],
+                    correct_answer: 2,
+                    explanation: 'Mitochondria are known as the powerhouse of the cell.'
+                },
+                {
+                    type: 'true_false',
+                    text: 'DNA is found only in the nucleus of eukaryotic cells.',
+                    choices: ['True', 'False'],
+                    correct_answer: 1,
+                    explanation: 'DNA is also found in mitochondria and chloroplasts.'
+                },
+                {
+                    type: 'multiple_choice',
+                    text: 'What process do plants use to convert sunlight into energy?',
+                    choices: ['Respiration', 'Photosynthesis', 'Fermentation', 'Digestion'],
+                    correct_answer: 1,
+                    explanation: 'Photosynthesis is the process by which plants convert light energy into chemical energy.'
+                },
+                {
+                    type: 'short_answer',
+                    text: 'Name the four main types of macromolecules in living organisms.',
+                    correct_answer: 'Carbohydrates, Lipids, Proteins, and Nucleic Acids',
+                    explanation: 'These are the four main classes of biological macromolecules.'
+                }
+            ];
+            
+            // Generate the requested number of questions
+            for (let i = 0; i < numQuestions; i++) {
+                const baseQ = baseQuestions[i % baseQuestions.length];
+                const question = {
+                    id: `q${i + 1}`,
+                    type: questionType === 'mixed' ? baseQ.type : questionType,
+                    text: `${baseQ.text} (Question ${i + 1})`,
+                    choices: baseQ.choices,
+                    correct_answer: baseQ.correct_answer,
+                    explanation: baseQ.explanation
+                };
+                
+                // Adjust for specific types
+                if (question.type === 'true_false' && baseQ.type !== 'true_false') {
+                    question.choices = ['True', 'False'];
+                    question.correct_answer = i % 2;
+                }
+                
+                allQuestions.push(question);
+            }
+            
+            selectedQuestions = [];
+            
+            // Show success and reveal review section
+            statusDiv.innerHTML = `<p style="color: #28a745; font-weight: 600;">✓ Successfully generated ${numQuestions} questions!</p>`;
+            generateBtn.disabled = false;
+            generateBtn.textContent = '🤖 Generate Questions from Document';
+            
+            // Show review section
+            document.getElementById('review-section').style.display = 'block';
+            document.getElementById('max-questions').value = numQuestions;
+            
+            renderQuestions();
+            
+            // Scroll to questions
+            setTimeout(() => {
+                document.getElementById('review-section').scrollIntoView({ behavior: 'smooth' });
+            }, 300);
+        }
+
+        function renderQuestions() {
+            const questionsList = document.getElementById('questions-list');
+            const filterType = document.getElementById('question-type-filter')?.value || 'all';
+            
+            // Filter questions by type
+            const filteredQuestions = filterType === 'all' 
+                ? allQuestions 
+                : allQuestions.filter(q => q.type === filterType);
+            
+            if (filteredQuestions.length === 0) {
+                questionsList.innerHTML = '<p style="text-align: center; color: #666; padding: 40px;">No questions match the selected filter.</p>';
+                return;
+            }
+            
+            questionsList.innerHTML = filteredQuestions.map((q, index) => `
+                <div class="question-card" style="background: white; border: 2px solid ${selectedQuestions.includes(q.id) ? '#007bff' : '#e0e0e0'}; border-radius: 8px; padding: 20px; margin-bottom: 15px; transition: all 0.2s;">
+                    <div style="display: flex; align-items: start; gap: 15px;">
+                        <input type="checkbox" 
+                               id="q-${q.id}" 
+                               ${selectedQuestions.includes(q.id) ? 'checked' : ''} 
+                               onchange="toggleQuestion('${q.id}')"
+                               style="width: 20px; height: 20px; cursor: pointer; margin-top: 2px;">
+                        <div style="flex: 1;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                <span style="background: #007bff; color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;">
+                                    ${q.type.replace('_', ' ').toUpperCase()}
+                                </span>
+                                <span style="color: #666; font-size: 14px;">Question ${index + 1} of ${filteredQuestions.length}</span>
+                            </div>
+                            
+                            <p style="font-size: 16px; font-weight: 600; margin: 10px 0; color: #333;">${q.text}</p>
+                            
+                            ${q.choices ? `
+                                <div style="margin: 15px 0;">
+                                    ${q.choices.map((choice, i) => `
+                                        <div style="padding: 8px; margin: 5px 0; background: ${i === q.correct_answer ? '#d4edda' : '#f8f9fa'}; border-left: 3px solid ${i === q.correct_answer ? '#28a745' : 'transparent'}; border-radius: 4px;">
+                                            ${String.fromCharCode(65 + i)}. ${choice} ${i === q.correct_answer ? '✓' : ''}
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            ` : ''}
+                            
+                            ${q.explanation ? `
+                                <div style="margin-top: 15px; padding: 12px; background: #fff3cd; border-left: 3px solid #ffc107; border-radius: 4px;">
+                                    <strong style="color: #856404;">Explanation:</strong>
+                                    <p style="margin: 5px 0 0 0; color: #856404;">${q.explanation}</p>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            updateSelectedCount();
+        }
+
+        function toggleQuestion(questionId) {
+            if (selectedQuestions.includes(questionId)) {
+                selectedQuestions = selectedQuestions.filter(id => id !== questionId);
+            } else {
+                selectedQuestions.push(questionId);
+            }
+            renderQuestions();
+        }
+
+        function selectAllQuestions() {
+            const filterType = document.getElementById('question-type-filter').value;
+            
+            const filteredQuestions = filterType === 'all' 
+                ? allQuestions 
+                : allQuestions.filter(q => q.type === filterType);
+            
+            selectedQuestions = filteredQuestions.map(q => q.id);
+            renderQuestions();
+        }
+
+        function clearAllQuestions() {
+            selectedQuestions = [];
+            renderQuestions();
+        }
+
+        function updateSelectedCount() {
+            const selectedCount = selectedQuestions.length;
+            const totalCount = allQuestions.length;
+            
+            document.getElementById('selected-count').textContent = selectedCount;
+            if (document.getElementById('total-available')) {
+                document.getElementById('total-available').textContent = totalCount;
+            }
+            if (document.getElementById('quiz-question-count')) {
+                document.getElementById('quiz-question-count').textContent = selectedCount;
+            }
+        }
+
+        function proceedToQuizGeneration() {
+            if (selectedQuestions.length === 0) {
+                alert('Please select at least one question before generating a quiz.');
+                return;
+            }
+            showTab(null, 'quiz');
+        }
+
+        // Initialize quiz form handler
+        document.addEventListener('DOMContentLoaded', function() {
+            const quizForm = document.getElementById('quiz-form');
+            if (quizForm) {
+                quizForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    if (selectedQuestions.length === 0) {
+                        alert('Please select at least one question before generating a quiz.');
+                        return;
+                    }
+                    
+                    const formData = new FormData(e.target);
+                    const data = Object.fromEntries(formData);
+                    
+                    // Send FULL question objects, not just IDs
+                    data.questions = selectedQuestions.map(qId => {
+                        return allQuestions.find(q => q.id === qId);
+                    }).filter(q => q !== undefined);
+                    
+                    // Show loading state
+                    const submitBtn = e.target.querySelector('button[type="submit"]');
+                    const originalBtnText = submitBtn.textContent;
+                    submitBtn.textContent = 'Generating...';
+                    submitBtn.disabled = true;
+
+                    try {
+                        const response = await fetch('/api/quiz/generate', {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify(data)
+                        });
+
+                        if (response.ok) {
+                            const blob = await response.blob();
+                            const url = window.URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = data.title.replace(/\s+/g, '_') + '.zip';
+                            a.click();
+                            
+                            alert('Quiz generated successfully! Check your downloads folder.');
+                        } else {
+                            const error = await response.json();
+                            alert('Error generating quiz: ' + (error.detail || 'Unknown error'));
+                        }
+                    } catch (error) {
+                        alert('Error: ' + error.message);
+                    } finally {
+                        submitBtn.textContent = originalBtnText;
+                        submitBtn.disabled = false;
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
+

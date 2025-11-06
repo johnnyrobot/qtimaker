@@ -4,15 +4,15 @@ if not exist make_tk_exe.bat (
     pause
     exit
 )
-if not exist text2qti_tk.pyw (
-    echo Missing text2qti_tk.pyw in working directory
+if not exist qtimaker_tk.pyw (
+    echo Missing qtimaker_tk.pyw in working directory
     pause
     exit
 )
 
 REM Create and activate a conda env for packaging the .exe
-call conda create -y --name make_text2qti_gui_exe python=3.11 --no-default-packages
-call conda activate make_text2qti_gui_exe
+call conda create -y --name make_qtimaker_gui_exe python=3.11 --no-default-packages
+call conda activate make_qtimaker_gui_exe
 REM List conda envs -- useful for debugging
 call conda info --envs
 REM Install dependencies
@@ -20,26 +20,26 @@ python -m pip install bespon
 python -m pip install markdown
 python -m pip install pyinstaller
 if exist "..\pyproject.toml" (
-    if exist "..\text2qti\" (
+    if exist "..\qtimaker\" (
         cd ..\..
-        python -m pip install .\text2qti
-        cd text2qti\make_gui_exe
+        python -m pip install .\qtimaker
+        cd qtimaker\make_gui_exe
     ) else (
-        python -m pip install text2qti
+        python -m pip install qtimaker
     )
 ) else (
-    python -m pip install text2qti
+    python -m pip install qtimaker
 )
 REM Build .exe
-FOR /F "tokens=* USEBACKQ" %%g IN (`python -c "import text2qti; print(text2qti.__version__)"`) do (SET "TEXT2QTI_VERSION=%%g")
-pyinstaller -F --name text2qti_tk_%TEXT2QTI_VERSION% text2qti_tk.pyw
+FOR /F "tokens=* USEBACKQ" %%g IN (`python -c "import qtimaker; print(qtimaker.__version__)"`) do (SET "QTIMAKER_VERSION=%%g")
+pyinstaller -F --name qtimaker_tk_%QTIMAKER_VERSION% qtimaker_tk.pyw
 REM Deactivate and delete conda env
 call conda deactivate
-call conda remove -y --name make_text2qti_gui_exe --all
+call conda remove -y --name make_qtimaker_gui_exe --all
 REM List conda envs -- useful for debugging
 call conda info --envs
 REM Cleanup
-move dist\text2qti_tk_%TEXT2QTI_VERSION%.exe text2qti_tk_%TEXT2QTI_VERSION%.exe
+move dist\qtimaker_tk_%QTIMAKER_VERSION%.exe qtimaker_tk_%QTIMAKER_VERSION%.exe
 if exist "__pycache__\" (
     rd /s /q "__pycache__"
 )

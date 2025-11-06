@@ -3,7 +3,7 @@ requires = ['setuptools']
 
 
 [project]
-name = 'text2qti'
+name = 'qtimaker'
 description = 'Create quizzes in QTI format from Markdown-based plain text'
 readme = 'README.md'
 requires-python = '>= 3.8'
@@ -26,6 +26,14 @@ keywords = [
 dependencies = [
     'bespon>=0.7.0',
     'markdown>=3.4.4',
+    'fastapi>=0.104.0',
+    'uvicorn[standard]>=0.24.0',
+    'python-multipart>=0.0.6',
+    'jinja2>=3.1.2',
+    'python-dotenv>=1.0.0',
+    'google-generativeai>=0.3.0',
+    'pydantic>=2.5.0',
+    'docling>=1.0.0',
 ]
 # https://pypi.python.org/pypi?:action=list_classifiers
 classifiers = [
@@ -40,23 +48,23 @@ classifiers = [
 
 
 [project.urls]
-repository = 'http://github.com/gpoore/text2qti'
-changelog = 'http://github.com/gpoore/text2qti/blob/master/CHANGELOG.md'
+repository = 'http://github.com/gpoore/qtimaker'
+changelog = 'http://github.com/gpoore/qtimaker/blob/master/CHANGELOG.md'
 
 
 [project.scripts]
-text2qti = 'text2qti.cmdline:main'
+qtimaker = 'qtimaker.cmdline:main'
 
 [project.gui-scripts]
-text2qti_tk = 'text2qti.gui.tk:main'
+qtimaker_tk = 'qtimaker.gui.tk:main'
 
 
 [tool.setuptools]
-packages = ['text2qti']
+packages = ['qtimaker']
 license-files = ['LICENSE*', 'CHANGELOG*']
 
 [tool.setuptools.dynamic]
-version = {attr = 'text2qti.__version__'}
+version = {attr = 'qtimaker.__version__'}
 
 
 [tool.ruff]
