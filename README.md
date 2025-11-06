@@ -2,6 +2,25 @@
 
 QTI Maker converts [Markdown](https://daringfireball.net/projects/markdown/)-based plain text files into quizzes in QTI format (version 1.2), which can be imported by [Canvas](https://www.instructure.com/canvas/) and other educational software. It supports multiple-choice, true/false, multiple-answers, numerical, short-answer (fill-in-the-blank), essay, and file-upload questions. It includes basic support for LaTeX math within Markdown, and allows a limited subset of [siunitx](https://ctan.org/pkg/siunitx) notation for units and for numbers in scientific notation.
 
+## About This Project
+
+This project is a fork and enhancement of [text2qti](https://github.com/gpoore/text2qti) by Geoffrey M. Poore and Glenn Horton-Smith. QTI Maker extends the original text2qti functionality with:
+
+- **Web-based interface** for document upload and quiz generation
+- **Docling integration** for advanced document parsing (PDF, DOCX, PPTX, etc.)
+- **AI-powered question generation** using Google Gemini
+- **Database integration** (PostgreSQL/Neon and Neo4j) for question management
+- **RAG (Retrieval-Augmented Generation)** service for intelligent question creation
+- **Enhanced installation instructions** for macOS and Windows
+
+The core QTI generation engine, quiz parsing, and Markdown processing remain based on the original text2qti work, which is licensed under the [BSD 3-Clause License](LICENSE.txt). All original copyright notices are preserved in the source code.
+
+### Original Project
+
+**text2qti** - Original repository: https://github.com/gpoore/text2qti  
+**Original Authors:** Geoffrey M. Poore, Glenn Horton-Smith  
+**Original License:** BSD 3-Clause License
+
 ## Installation
 
 ### Prerequisites

@@ -4,11 +4,13 @@ requires = ['setuptools']
 
 [project]
 name = 'qtimaker'
-description = 'Create quizzes in QTI format from Markdown-based plain text'
+description = 'Create quizzes in QTI format from Markdown-based plain text. Fork of text2qti with web interface, AI-powered question generation, and enhanced document processing.'
 readme = 'README.md'
 requires-python = '>= 3.8'
 authors = [
-    {name = 'Geoffrey M. Poore', email = 'gpoore@gmail.com'}
+    {name = 'Geoffrey M. Poore', email = 'gpoore@gmail.com'},
+    {name = 'Glenn Horton-Smith', email = 'gahs@phys.ksu.edu'},
+    {name = 'johnnyrobot'}
 ]
 license = {file = 'LICENSE.txt'}
 dynamic = ['version']
