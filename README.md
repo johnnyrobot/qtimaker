@@ -9,8 +9,6 @@ This project is a fork and enhancement of [text2qti](https://github.com/gpoore/t
 - **Web-based interface** for document upload and quiz generation
 - **Docling integration** for advanced document parsing (PDF, DOCX, PPTX, etc.)
 - **AI-powered question generation** using Google Gemini
-- **Database integration** (PostgreSQL/Neon and Neo4j) for question management
-- **RAG (Retrieval-Augmented Generation)** service for intelligent question creation
 - **Enhanced installation instructions** for macOS and Windows
 
 The core QTI generation engine, quiz parsing, and Markdown processing remain based on the original text2qti work, which is licensed under the [BSD 3-Clause License](LICENSE.txt). All original copyright notices are preserved in the source code.
