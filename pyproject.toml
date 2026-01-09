@@ -1,0 +1,73 @@
+[build-system]
+requires = ['setuptools']
+
+
+[project]
+name = 'qtimaker'
+description = 'Create quizzes in QTI format from Markdown-based plain text. Fork of text2qti with web interface, AI-powered question generation, and enhanced document processing.'
+readme = 'README.md'
+requires-python = '>= 3.8'
+authors = [
+    {name = 'Geoffrey M. Poore', email = ''},
+    {name = 'Glenn Horton-Smith', email = ''},
+    {name = 'johnnyrobot'}
+]
+license = {file = 'LICENSE.txt'}
+dynamic = ['version']
+keywords = [
+    'QTI',
+    'IMS Question & Test Interoperability',
+    'quiz',
+    'test',
+    'exam',
+    'assessment',
+    'markdown',
+    'LaTeX',
+    'plain text',
+]
+dependencies = [
+    'bespon>=0.7.0',
+    'markdown>=3.4.4',
+    'fastapi>=0.104.0',
+    'uvicorn[standard]>=0.24.0',
+    'python-multipart>=0.0.6',
+    'jinja2>=3.1.2',
+    'python-dotenv>=1.0.0',
+    'google-generativeai>=0.3.0',
+    'pydantic>=2.5.0',
+    'docling>=1.0.0',
+]
+# https://pypi.python.org/pypi?:action=list_classifiers
+classifiers = [
+    'Development Status :: 4 - Beta',
+    'Environment :: Console',
+    'Intended Audience :: Education',
+    'License :: OSI Approved :: BSD License',
+    'Operating System :: OS Independent',
+    'Programming Language :: Python',
+    'Topic :: Education :: Testing',
+]
+
+
+[project.urls]
+repository = 'http://github.com/gpoore/qtimaker'
+changelog = 'http://github.com/gpoore/qtimaker/blob/master/CHANGELOG.md'
+
+
+[project.scripts]
+qtimaker = 'qtimaker.cmdline:main'
+
+[project.gui-scripts]
+qtimaker_tk = 'qtimaker.gui.tk:main'
+
+
+[tool.setuptools]
+packages = ['qtimaker']
+license-files = ['LICENSE*', 'CHANGELOG*']
+
+[tool.setuptools.dynamic]
+version = {attr = 'qtimaker.__version__'}
+
+
+[tool.ruff]
+line-length = 120
