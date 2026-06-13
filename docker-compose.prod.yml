@@ -1,0 +1,17 @@
+services:
+  qtimaker:
+    build: .
+    container_name: qtimaker
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - qtimaker_uploads:/app/uploads
+    networks:
+      - proxy
+
+volumes:
+  qtimaker_uploads:
+
+networks:
+  proxy:
+    external: true
