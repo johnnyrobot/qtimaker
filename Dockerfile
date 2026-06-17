@@ -29,4 +29,7 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
     CMD curl -f http://localhost:8000/ || exit 1
 
+RUN useradd -U -u 1000 appuser && chown -R 1000:1000 /app
+USER 1000
+
 CMD ["uvicorn", "qtimaker.web.app:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "2"]
