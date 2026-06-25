@@ -11,6 +11,8 @@ This project is a fork and enhancement of [text2qti](https://github.com/gpoore/t
 - **AI-powered question generation** using Google Gemini
 - **Enhanced installation instructions** for macOS and Windows
 
+> **Scope:** QTI Maker is intended to run **locally on a single user's machine**. The web interface has no built-in authentication or rate limiting and should not be exposed to the public internet without adding those yourself — see [Hosting online](#hosting-online).
+
 The core QTI generation engine, quiz parsing, and Markdown processing remain based on the original text2qti work, which is licensed under the [BSD 3-Clause License](LICENSE.txt). All original copyright notices are preserved in the source code.
 
 ### Original Project
@@ -270,22 +272,50 @@ The project includes a graphical application and a command-line application.
 
 ### Web Interface
 
-The project includes a web-based interface for uploading documents and generating quizzes:
+The project includes a web-based interface for uploading documents (PDF, DOCX, PPTX, etc.) and generating quiz questions from them with AI.
 
-1. Start the web server:
+> ⚠️ **Intended for local, single-user use.** The web interface is designed to run on your own machine. It ships with **no authentication, no rate limiting, and no upload quotas**, and by default it binds to `localhost` so only you can reach it. **Do not expose it to the public internet as-is.** If you want to host it online for multiple users, that is your responsibility: you must add authentication, rate limiting, HTTPS/TLS, upload size and content restrictions, and set `ALLOWED_ORIGINS` to your real frontend origin(s). See [Hosting online](#hosting-online) below.
+
+**1. (Optional) Configure AI question generation.**
+
+The document-to-questions feature uses Google Gemini. Copy `.env.example` to `.env` and add your API key (get one at [Google AI Studio](https://aistudio.google.com/app/apikey)):
+
+```bash
+cp .env.example .env
+# then edit .env and set GEMINI_API_KEY=...
+```
+
+Without a key, the core QTI generation still works; only the AI-powered question extraction is disabled.
+
+**2. Start the web server:**
+
 ```bash
 python3 -m qtimaker.web.app
 ```
 
 Or using uvicorn directly:
+
 ```bash
 uvicorn qtimaker.web.app:app --reload
 ```
 
-2. Open your browser and navigate to:
+**3. Open your browser and navigate to:**
+
 ```
 http://localhost:8000
 ```
+
+#### Hosting online
+
+This application was built to run **locally on a user's machine**, not as a multi-tenant public service. Out of the box it has no access control. If you choose to deploy it on a server reachable by others, you are responsible for hardening it for your environment. At minimum you should:
+
+- Put it behind **authentication** (e.g. an auth proxy, SSO, or an API gateway).
+- Add **rate limiting** and **upload size/quantity limits** (AI calls cost money and uploads consume disk).
+- Terminate **HTTPS/TLS** in front of the app.
+- Set the `ALLOWED_ORIGINS` environment variable to the exact browser origin(s) you serve from (comma-separated), instead of relying on the localhost default.
+- Run it as a **non-root user** (the provided `Dockerfile` already does this) and persist/clean up the `uploads/` directory.
+
+A `Dockerfile` and `docker-compose.prod.yml` are included as a starting point for containerized deployment, but they do **not** add authentication or rate limiting — those remain your responsibility.
 
 ### Using QTI Files with Canvas
 
