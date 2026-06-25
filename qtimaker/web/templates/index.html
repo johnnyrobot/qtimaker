@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>johnnyrobot - Quiz Maker</title>
+    <title>QTI Maker - Canvas Quiz Maker</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
@@ -87,7 +87,7 @@
 </head>
 <body>
     <div class="header">
-        <h1>johnnyrobot - Canvas Quiz Maker</h1>
+        <h1>QTI Maker - Canvas Quiz Maker</h1>
         <p>Upload documents, extract questions, and generate QTI quizzes for Canvas</p>
     </div>
 
@@ -360,10 +360,10 @@
                     
                     statusDiv.innerHTML = `
                         <p style="color: #28a745; font-weight: 600;">
-                            ✓ Successfully generated ${result.total_generated} questions from your document!
+                            ✓ Successfully generated ${escapeHtml(result.total_generated)} questions from your document!
                         </p>
                         <p style="color: #666; font-size: 14px;">
-                            Parsing method: ${result.method || 'unknown'} | Document: ${window.currentFileName}
+                            Parsing method: ${escapeHtml(result.method || 'unknown')} | Document: ${escapeHtml(window.currentFileName)}
                         </p>
                     `;
                     
@@ -385,90 +385,17 @@
                 console.error('Error generating questions:', error);
             } finally {
                 generateBtn.disabled = false;
-                generateBtn.textContent = '🤖 Generate Questions from Document';
+                generateBtn.textContent = '🤖 Generate Questions Using AI';
             }
-            
-            return;  // Skip the old sample generation code below
-            
-            // OLD CODE (FALLBACK) - only runs if API call is skipped
-            await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API call
-            
-            allQuestions = [];
-            const baseQuestions = [
-                {
-                    type: 'multiple_choice',
-                    text: 'What is the basic unit of life?',
-                    choices: ['Atom', 'Cell', 'Molecule', 'Organ'],
-                    correct_answer: 1,
-                    explanation: 'The cell is the smallest unit of life that can function independently.'
-                },
-                {
-                    type: 'multiple_choice',
-                    text: 'Which organelle is responsible for energy production?',
-                    choices: ['Nucleus', 'Ribosome', 'Mitochondria', 'Golgi apparatus'],
-                    correct_answer: 2,
-                    explanation: 'Mitochondria are known as the powerhouse of the cell.'
-                },
-                {
-                    type: 'true_false',
-                    text: 'DNA is found only in the nucleus of eukaryotic cells.',
-                    choices: ['True', 'False'],
-                    correct_answer: 1,
-                    explanation: 'DNA is also found in mitochondria and chloroplasts.'
-                },
-                {
-                    type: 'multiple_choice',
-                    text: 'What process do plants use to convert sunlight into energy?',
-                    choices: ['Respiration', 'Photosynthesis', 'Fermentation', 'Digestion'],
-                    correct_answer: 1,
-                    explanation: 'Photosynthesis is the process by which plants convert light energy into chemical energy.'
-                },
-                {
-                    type: 'short_answer',
-                    text: 'Name the four main types of macromolecules in living organisms.',
-                    correct_answer: 'Carbohydrates, Lipids, Proteins, and Nucleic Acids',
-                    explanation: 'These are the four main classes of biological macromolecules.'
-                }
-            ];
-            
-            // Generate the requested number of questions
-            for (let i = 0; i < numQuestions; i++) {
-                const baseQ = baseQuestions[i % baseQuestions.length];
-                const question = {
-                    id: `q${i + 1}`,
-                    type: questionType === 'mixed' ? baseQ.type : questionType,
-                    text: `${baseQ.text} (Question ${i + 1})`,
-                    choices: baseQ.choices,
-                    correct_answer: baseQ.correct_answer,
-                    explanation: baseQ.explanation
-                };
-                
-                // Adjust for specific types
-                if (question.type === 'true_false' && baseQ.type !== 'true_false') {
-                    question.choices = ['True', 'False'];
-                    question.correct_answer = i % 2;
-                }
-                
-                allQuestions.push(question);
-            }
-            
-            selectedQuestions = [];
-            
-            // Show success and reveal review section
-            statusDiv.innerHTML = `<p style="color: #28a745; font-weight: 600;">✓ Successfully generated ${numQuestions} questions!</p>`;
-            generateBtn.disabled = false;
-            generateBtn.textContent = '🤖 Generate Questions from Document';
-            
-            // Show review section
-            document.getElementById('review-section').style.display = 'block';
-            document.getElementById('max-questions').value = numQuestions;
-            
-            renderQuestions();
-            
-            // Scroll to questions
-            setTimeout(() => {
-                document.getElementById('review-section').scrollIntoView({ behavior: 'smooth' });
-            }, 300);
+        }
+
+        // Escape untrusted text before inserting it into innerHTML. Question
+        // content comes from AI parsing of user-uploaded documents and must
+        // not be treated as HTML.
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>"']/g, ch => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            }[ch]));
         }
 
         function renderQuestions() {
@@ -496,27 +423,27 @@
                         <div style="flex: 1;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                                 <span style="background: #007bff; color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;">
-                                    ${q.type.replace('_', ' ').toUpperCase()}
+                                    ${escapeHtml(String(q.type || '').replace('_', ' ').toUpperCase())}
                                 </span>
                                 <span style="color: #666; font-size: 14px;">Question ${index + 1} of ${filteredQuestions.length}</span>
                             </div>
-                            
-                            <p style="font-size: 16px; font-weight: 600; margin: 10px 0; color: #333;">${q.text}</p>
-                            
+
+                            <p style="font-size: 16px; font-weight: 600; margin: 10px 0; color: #333;">${escapeHtml(q.text)}</p>
+
                             ${q.choices ? `
                                 <div style="margin: 15px 0;">
                                     ${q.choices.map((choice, i) => `
                                         <div style="padding: 8px; margin: 5px 0; background: ${i === q.correct_answer ? '#d4edda' : '#f8f9fa'}; border-left: 3px solid ${i === q.correct_answer ? '#28a745' : 'transparent'}; border-radius: 4px;">
-                                            ${String.fromCharCode(65 + i)}. ${choice} ${i === q.correct_answer ? '✓' : ''}
+                                            ${String.fromCharCode(65 + i)}. ${escapeHtml(choice)} ${i === q.correct_answer ? '✓' : ''}
                                         </div>
                                     `).join('')}
                                 </div>
                             ` : ''}
-                            
+
                             ${q.explanation ? `
                                 <div style="margin-top: 15px; padding: 12px; background: #fff3cd; border-left: 3px solid #ffc107; border-radius: 4px;">
                                     <strong style="color: #856404;">Explanation:</strong>
-                                    <p style="margin: 5px 0 0 0; color: #856404;">${q.explanation}</p>
+                                    <p style="margin: 5px 0 0 0; color: #856404;">${escapeHtml(q.explanation)}</p>
                                 </div>
                             ` : ''}
                         </div>
