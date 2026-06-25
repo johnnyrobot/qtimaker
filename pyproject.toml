@@ -6,7 +6,7 @@ requires = ['setuptools']
 name = 'qtimaker'
 description = 'Create quizzes in QTI format from Markdown-based plain text. Fork of text2qti with web interface, AI-powered question generation, and enhanced document processing.'
 readme = 'README.md'
-requires-python = '>= 3.8'
+requires-python = '>= 3.10'
 authors = [
     {name = 'Geoffrey M. Poore', email = ''},
     {name = 'Glenn Horton-Smith', email = ''},
@@ -45,13 +45,16 @@ classifiers = [
     'License :: OSI Approved :: BSD License',
     'Operating System :: OS Independent',
     'Programming Language :: Python',
+    'Programming Language :: Python :: 3.10',
+    'Programming Language :: Python :: 3.11',
+    'Programming Language :: Python :: 3.12',
     'Topic :: Education :: Testing',
 ]
 
 
 [project.urls]
-repository = 'http://github.com/gpoore/qtimaker'
-changelog = 'http://github.com/gpoore/qtimaker/blob/master/CHANGELOG.md'
+repository = 'https://github.com/johnnyrobot/qtimaker'
+upstream = 'https://github.com/gpoore/text2qti'
 
 
 [project.scripts]
@@ -62,8 +65,13 @@ qtimaker_tk = 'qtimaker.gui.tk:main'
 
 
 [tool.setuptools]
-packages = ['qtimaker']
-license-files = ['LICENSE*', 'CHANGELOG*']
+license-files = ['LICENSE*']
+
+[tool.setuptools.packages.find]
+include = ['qtimaker*']
+
+[tool.setuptools.package-data]
+'qtimaker.web' = ['templates/*.html', 'static/*']
 
 [tool.setuptools.dynamic]
 version = {attr = 'qtimaker.__version__'}

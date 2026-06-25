@@ -3,22 +3,34 @@
 # FastAPI application for QTI Maker web interface
 #
 
-from fastapi import FastAPI
+import os
+from pathlib import Path
+
+from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
-from fastapi import Request
 from fastapi.middleware.cors import CORSMiddleware
-import os
-from pathlib import Path
+
+from .. import __version__
 from .routes import upload, questions, quiz_generation
 
-app = FastAPI(title="QTI Maker Web Interface", version="2.0.0")
+app = FastAPI(title="QTI Maker Web Interface", version=__version__)
 
-# CORS middleware
+# CORS middleware.
+# Restrict origins via the ALLOWED_ORIGINS env var (comma-separated). A
+# wildcard "*" is rejected when credentials are enabled, so credentials are
+# only allowed when an explicit origin allowlist is configured.
+_origins_env = os.getenv("ALLOWED_ORIGINS", "").strip()
+if _origins_env:
+    allowed_origins = [o.strip() for o in _origins_env.split(",") if o.strip()]
+else:
+    # Safe local default; override in production via ALLOWED_ORIGINS.
+    allowed_origins = ["http://localhost:8000", "http://127.0.0.1:8000"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Configure appropriately for production
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

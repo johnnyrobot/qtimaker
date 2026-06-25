@@ -4,15 +4,18 @@
 #
 
 from fastapi import APIRouter, HTTPException
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse
 from typing import List, Optional
 from pydantic import BaseModel
+import logging
 import tempfile
 from pathlib import Path
 from ...qti import QTI
 from ...quiz import Quiz
 from ...config import Config
 
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/quiz", tags=["quiz"])
 
@@ -119,10 +122,9 @@ async def generate_quiz(request: QuizGenerationRequest):
             media_type="application/zip",
             filename=f"{request.title.replace(' ', '_')}.zip"
         )
-    except Exception as e:
-        import traceback
-        error_details = traceback.format_exc()
-        raise HTTPException(status_code=500, detail=f"Quiz generation failed: {str(e)}\n{error_details}")
+    except Exception:
+        logger.exception("Quiz generation failed")
+        raise HTTPException(status_code=500, detail="Quiz generation failed")
 
 
 @router.get("/questions/bank")

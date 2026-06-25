@@ -1,4 +1,12 @@
 _*
+# ...but never ignore Python package markers (the _* rule above would).
+!**/__init__.py
+
+# macOS
+.DS_Store
+
+# User-uploaded documents (runtime data, must not be committed)
+/uploads/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

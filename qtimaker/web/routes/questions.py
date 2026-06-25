@@ -10,8 +10,11 @@ from pydantic import BaseModel
 from pathlib import Path
 from ..config import UPLOAD_DIR, GEMINI_API_KEY, GEMINI_LLM_MODEL
 import google.generativeai as genai
+import logging
 import re
 import json
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/questions", tags=["questions"])
 
@@ -105,21 +108,21 @@ async def generate_questions_with_docling(request: QuestionGenerationRequest):
                 "explanation": q.get("explanation", "")
             })
         
-        print(f"\n✅ SUCCESS: Generated {len(formatted)} questions from Biology textbook\n")
-        
+        print(f"\n✅ SUCCESS: Generated {len(formatted)} questions from document\n")
+
         return JSONResponse({
             "document_id": request.document_id,
             "questions": formatted,
             "total_generated": len(formatted),
-            "method": "docling_mcp_gemini",
-            "message": f"Generated {len(formatted)} questions from your Biology textbook"
+            "method": "docling_gemini",
+            "message": f"Generated {len(formatted)} questions from your document"
         })
-        
-    except Exception as e:
-        import traceback
-        error_details = traceback.format_exc()
-        print(f"\n❌ ERROR:\n{error_details}\n")
-        raise HTTPException(status_code=500, detail=str(e))
+
+    except HTTPException:
+        raise
+    except Exception:
+        logger.exception("Question generation failed")
+        raise HTTPException(status_code=500, detail="Question generation failed")
 
 
 async def parse_with_docling_mcp(file_path: str) -> str:
@@ -134,14 +137,14 @@ async def parse_with_docling_mcp(file_path: str) -> str:
         
         # Initialize Docling converter
         converter = DocumentConverter()
-        print(f"  → Docling converter initialized")
+        print("  → Docling converter initialized")
         
         # Convert the document
-        print(f"  → Converting PDF to structured format...")
+        print("  → Converting PDF to structured format...")
         result = converter.convert(file_path)
         
         # Export to markdown
-        print(f"  → Exporting to markdown...")
+        print("  → Exporting to markdown...")
         markdown_content = result.document.export_to_markdown()
         
         print(f"  → ✓ Extracted {len(markdown_content)} characters from PDF")
@@ -150,7 +153,7 @@ async def parse_with_docling_mcp(file_path: str) -> str:
         
     except ImportError as e:
         print(f"  ❌ Docling not installed: {e}")
-        print(f"  → Run: pip install docling")
+        print("  → Run: pip install docling")
         raise Exception("Docling library not installed. Run: pip install docling")
     except Exception as e:
         print(f"  ❌ Docling parsing error: {e}")
@@ -188,9 +191,9 @@ async def generate_with_gemini(text: str, num: int) -> List[dict]:
     
     for attempt in range(max_retries):
         try:
-            prompt = f"""You are creating Biology quiz questions from a textbook.
+            prompt = f"""You are creating quiz questions from a document.
 
-Generate EXACTLY {num} multiple-choice questions based on this textbook content:
+Generate EXACTLY {num} multiple-choice questions based on this content:
 
 ---
 {text[:3000]}
@@ -202,7 +205,7 @@ Requirements:
 - Create EXACTLY {num} questions (no more, no less)
 - Each must have 4 answer choices
 - Mark which choice is correct (index 0-3)
-- Base all questions directly on the textbook content above
+- Base all questions directly on the content above
 - Include brief explanations citing the text
 
 Return ONLY valid JSON (no markdown, no extra text):

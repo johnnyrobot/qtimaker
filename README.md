@@ -24,13 +24,13 @@ The core QTI generation engine, quiz parsing, and Markdown processing remain bas
 ### Prerequisites
 
 This project requires:
-- **Python 3.8 or higher**
+- **Python 3.10 or higher**
 - **Docling** (Python library for document processing)
 - All Python dependencies listed in `pyproject.toml`
 
 ### macOS Installation
 
-#### 1. Install Python 3.8+
+#### 1. Install Python 3.10+
 
 **Option A: Using Homebrew (Recommended)**
 
@@ -61,7 +61,7 @@ python3 --version
 
 #### 2. Install pip (if not already included)
 
-Python 3.8+ includes pip by default. Verify it's installed:
+Python 3.10+ includes pip by default. Verify it's installed:
 ```bash
 python3 -m pip --version
 ```
@@ -110,7 +110,7 @@ python3 -m pip install -e ".[dev]"
 
 ### Windows Installation
 
-#### 1. Install Python 3.8+
+#### 1. Install Python 3.10+
 
 1. Download Python from the [official Python website](https://www.python.org/downloads/windows/)
 2. Run the installer (`.exe` file)
@@ -125,7 +125,7 @@ python --version
 
 #### 2. Install pip (if not already included)
 
-Python 3.8+ includes pip by default. Verify it's installed:
+Python 3.10+ includes pip by default. Verify it's installed:
 ```cmd
 python -m pip --version
 ```
@@ -222,7 +222,7 @@ python -m pip install --upgrade -e .
 - **Windows:** Run Command Prompt as Administrator
 
 **Issue: Multiple Python versions**
-- Use `python3.8`, `python3.9`, etc. to specify the exact version
+- Use `python3.10`, `python3.11`, etc. to specify the exact version
 - Consider using a virtual environment (see below)
 
 #### Using Virtual Environments (Recommended)
