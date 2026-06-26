@@ -9,7 +9,7 @@ from typing import List
 from pydantic import BaseModel
 from pathlib import Path
 from ..config import UPLOAD_DIR, GEMINI_API_KEY, GEMINI_LLM_MODEL
-import google.generativeai as genai
+from google import genai
 import logging
 import re
 import json
@@ -61,9 +61,9 @@ async def generate_questions_with_docling(request: QuestionGenerationRequest):
         
         if not GEMINI_API_KEY:
             raise HTTPException(status_code=500, detail="GEMINI_API_KEY not set in .env file")
-        
-        genai.configure(api_key=GEMINI_API_KEY)
-        
+
+        client = genai.Client(api_key=GEMINI_API_KEY)
+
         # Split into chunks
         chunks = split_text_simple(content, size=3000)
         print(f"Split into {len(chunks)} chunks")
@@ -84,7 +84,7 @@ async def generate_questions_with_docling(request: QuestionGenerationRequest):
             num_to_gen = min(questions_per_chunk + 1, remaining)  # Request 1 extra per chunk
             
             print(f"  Chunk {i+1}/{chunks_to_use}: Requesting {num_to_gen} questions...")
-            chunk_questions = await generate_with_gemini(chunk, num_to_gen)
+            chunk_questions = await generate_with_gemini(client, chunk, num_to_gen)
             all_questions.extend(chunk_questions)
             print(f"    → Got {len(chunk_questions)} questions (total so far: {len(all_questions)})")
         
@@ -92,7 +92,7 @@ async def generate_questions_with_docling(request: QuestionGenerationRequest):
         if len(all_questions) < request.num_questions and chunks:
             shortage = request.num_questions - len(all_questions)
             print(f"  → Generating {shortage} more questions to reach target...")
-            extra_q = await generate_with_gemini(chunks[0], shortage)
+            extra_q = await generate_with_gemini(client, chunks[0], shortage)
             all_questions.extend(extra_q)
             print(f"    → Got {len(extra_q)} more questions (total: {len(all_questions)})")
         
@@ -185,7 +185,7 @@ def split_text_simple(text: str, size: int = 3000) -> List[str]:
     return chunks if chunks else [text]
 
 
-async def generate_with_gemini(text: str, num: int) -> List[dict]:
+async def generate_with_gemini(client, text: str, num: int) -> List[dict]:
     """Generate questions using Gemini AI - with retry if fewer questions returned."""
     max_retries = 2
     
@@ -222,8 +222,10 @@ Return ONLY valid JSON (no markdown, no extra text):
 }}
 """
             
-            model = genai.GenerativeModel(GEMINI_LLM_MODEL)
-            response = model.generate_content(prompt)
+            response = client.models.generate_content(
+                model=GEMINI_LLM_MODEL,
+                contents=prompt,
+            )
             
             # Parse response
             text_resp = response.text.strip()
