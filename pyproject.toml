@@ -8,8 +8,8 @@ description = 'Create quizzes in QTI format from Markdown-based plain text. Fork
 readme = 'README.md'
 requires-python = '>= 3.10'
 authors = [
-    {name = 'Geoffrey M. Poore', email = ''},
-    {name = 'Glenn Horton-Smith', email = ''},
+    {name = 'Geoffrey M. Poore'},
+    {name = 'Glenn Horton-Smith'},
     {name = 'johnnyrobot'}
 ]
 license = {file = 'LICENSE.txt'}
