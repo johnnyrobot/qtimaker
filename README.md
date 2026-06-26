@@ -98,14 +98,15 @@ xcode-select --install
 
 #### 5. Install the Project
 
-Navigate to the project directory and install:
+Clone the repository and install it:
 
 ```bash
-cd /path/to/qtimaker
+git clone https://github.com/johnnyrobot/qtimaker.git
+cd qtimaker
 python3 -m pip install -e .
 ```
 
-Or install in development mode:
+Or, to also install the development tools (linting):
 ```bash
 python3 -m pip install -e ".[dev]"
 ```
@@ -158,9 +159,10 @@ python -m pip install docling
 #### 5. Install the Project
 
 1. Open Command Prompt or PowerShell
-2. Navigate to the project directory:
+2. Clone the repository and enter it:
 ```cmd
-cd C:\path\to\qtimaker
+git clone https://github.com/johnnyrobot/qtimaker.git
+cd qtimaker
 ```
 
 3. Install the project:

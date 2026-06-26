@@ -51,8 +51,14 @@ classifiers = [
     'Topic :: Education :: Testing',
 ]
 
+[project.optional-dependencies]
+dev = [
+    'ruff',
+]
+
 
 [project.urls]
+homepage = 'https://github.com/johnnyrobot/qtimaker'
 repository = 'https://github.com/johnnyrobot/qtimaker'
 upstream = 'https://github.com/gpoore/text2qti'
 
